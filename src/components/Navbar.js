@@ -1,106 +1,104 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import './Navbar.css';
 
-const Navbar = ({ 
-  translations, 
-  user, 
-  currentPage, 
-  setCurrentPage, 
-  handleLogout, 
-  language, 
-  setLanguage 
-}) => {
-  const t = translations;
+const Navbar = ({ user, handleLogout, translations }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
 
-  const navItems = [
-    { key: 'home', path: '/', label: t.home },
-    { key: 'dashboard', path: '/dashboard', label: t.dashboard },
-    { key: 'collections', path: '/collections', label: t.collections },
-    { key: 'payments', path: '/payments', label: t.payments },
-    { key: 'extra-collections', path: '/extra-collections', label: t.extraCollections },
-    { key: 'extra-payments', path: '/extra-payments', label: t.extraPayments }
-  ];
-
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Español' },
-    { code: 'fr', name: 'Français' }
-  ];
+  const isActive = (path) => location.pathname === path;
 
   return (
     <nav className="navbar">
-      <div className="navbar-content">
-        <Link 
-          to="/" 
-          className="navbar-brand"
-          onClick={() => setCurrentPage('home')}
-        >
-          🗑️ Trash Collection
+      <div className="navbar-container">
+        <Link to="/" className="navbar-brand">
+          <span className="brand-icon">🗑️</span>
+          Trash Collection
         </Link>
 
-        <ul className="navbar-nav">
-          {navItems.map((item) => (
-            <li key={item.key}>
-              <Link
-                to={item.path}
-                className={`nav-link ${currentPage === item.key ? 'active' : ''}`}
-                onClick={() => setCurrentPage(item.key)}
+        <ul className={`navbar-menu ${isMenuOpen ? 'mobile-open' : ''}`}>
+          <li className="navbar-item">
+            <Link 
+              to="/dashboard" 
+              className={`navbar-link ${isActive('/dashboard') ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Dashboard
+            </Link>
+          </li>
+          <li className="navbar-item">
+            <Link 
+              to="/collections" 
+              className={`navbar-link ${isActive('/collections') ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Collections
+            </Link>
+          </li>
+          <li className="navbar-item">
+            <Link 
+              to="/payments" 
+              className={`navbar-link ${isActive('/payments') ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Payments
+            </Link>
+          </li>
+          <li className="navbar-item navbar-dropdown">
+            <span className="navbar-link">Services</span>
+            <div className="dropdown-menu">
+              <Link 
+                to="/extra-collection" 
+                className="dropdown-item"
+                onClick={() => setIsMenuOpen(false)}
               >
-                {item.label}
+                Extra Collection
               </Link>
-            </li>
-          ))}
+              <Link 
+                to="/extra-payment" 
+                className="dropdown-item"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Extra Payment
+              </Link>
+            </div>
+          </li>
         </ul>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Language Selector */}
-          <select
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            style={{
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px',
-              border: '1px solid #ddd',
-              backgroundColor: 'white'
-            }}
-          >
-            {languages.map((lang) => (
-              <option key={lang.code} value={lang.code}>
-                {lang.name}
-              </option>
-            ))}
-          </select>
-
-          {/* User Menu */}
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ color: '#ecf0f1' }}>
-                Welcome, {user.name}
-              </span>
-              <button
+        <div className="navbar-actions">
+          <div className="notification-badge">
+            <span className="notification-icon">🔔</span>
+            <span className="badge">3</span>
+          </div>
+          
+          <div className="user-menu">
+            <div className="user-avatar">
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+            <div className="user-dropdown">
+              <div className="dropdown-item" style={{fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '10px', marginBottom: '10px'}}>
+                {user?.name || 'User'}
+              </div>
+              <Link to="/profile" className="dropdown-item">Profile</Link>
+              <Link to="/settings" className="dropdown-item">Settings</Link>
+              <button 
                 onClick={handleLogout}
-                className="btn btn-danger"
-                style={{ 
-                  padding: '0.5rem 1rem',
-                  fontSize: '0.9rem'
-                }}
+                className="dropdown-item" 
+                style={{background: 'none', border: 'none', width: '100%', textAlign: 'left', cursor: 'pointer'}}
               >
-                {t.logout}
+                Logout
               </button>
             </div>
-          ) : (
-            <Link
-              to="/login"
-              className="btn btn-primary"
-              style={{ 
-                padding: '0.5rem 1rem',
-                fontSize: '0.9rem',
-                textDecoration: 'none'
-              }}
-            >
-              {t.login}
-            </Link>
-          )}
+          </div>
+        </div>
+
+        <div 
+          className={`mobile-menu-toggle ${isMenuOpen ? 'active' : ''}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
         </div>
       </div>
     </nav>
